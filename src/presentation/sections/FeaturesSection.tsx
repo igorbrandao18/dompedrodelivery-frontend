@@ -3,12 +3,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { highlights } from "@/presentation/content/landing-content";
 
-interface FeatureItem {
-  title: string;
-  description: string;
-  icon?: React.ReactNode;
-}
-
 const featureIcons: Record<string, React.ReactNode> = {
   "Cardápio digital": (
     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

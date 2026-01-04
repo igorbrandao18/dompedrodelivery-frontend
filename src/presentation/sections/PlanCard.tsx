@@ -28,9 +28,12 @@ export function PlanCard({ plan, highlight }: PlanCardProps) {
           </li>
         ))}
       </ul>
-      <button className="mt-6 w-full rounded-2xl bg-orange-600 px-4 py-3 font-semibold text-white transition hover:bg-orange-700">
+      <a
+        href="/auth/register"
+        className="mt-6 w-full rounded-2xl bg-orange-600 px-4 py-3 font-semibold text-white transition hover:bg-orange-700 text-center block"
+      >
         Assinar {plan.name}
-      </button>
+      </a>
     </article>
   );
 }

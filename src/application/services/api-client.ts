@@ -1,5 +1,3 @@
-import { PaginatedResponse } from '@/domain/types';
-
 /**
  * Cliente base para chamadas de API
  */
@@ -67,15 +65,22 @@ class ApiClient {
   /**
    * GET request
    */
-  async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-    const url = params ? `${endpoint}?${new URLSearchParams(params)}` : endpoint;
+  async get<T>(
+    endpoint: string,
+    params?: Record<string, string | number | boolean>
+  ): Promise<T> {
+    const url = params
+      ? `${endpoint}?${new URLSearchParams(
+          Object.entries(params).map(([key, value]) => [key, String(value)])
+        )}`
+      : endpoint;
     return this.request<T>(url);
   }
 
   /**
    * POST request
    */
-  async post<T>(endpoint: string, data?: any): Promise<T> {
+  async post<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
@@ -85,7 +90,7 @@ class ApiClient {
   /**
    * PUT request
    */
-  async put<T>(endpoint: string, data?: any): Promise<T> {
+  async put<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
@@ -95,7 +100,7 @@ class ApiClient {
   /**
    * PATCH request
    */
-  async patch<T>(endpoint: string, data?: any): Promise<T> {
+  async patch<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PATCH',
       body: data ? JSON.stringify(data) : undefined,
@@ -114,7 +119,11 @@ class ApiClient {
   /**
    * Upload de arquivo
    */
-  async upload<T>(endpoint: string, file: File, additionalData?: Record<string, any>): Promise<T> {
+  async upload<T>(
+    endpoint: string,
+    file: File,
+    additionalData?: Record<string, string | number | boolean>
+  ): Promise<T> {
     const formData = new FormData();
     formData.append('file', file);
     

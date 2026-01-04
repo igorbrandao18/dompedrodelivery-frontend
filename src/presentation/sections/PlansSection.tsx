@@ -50,15 +50,18 @@ export function PlansSection({ plans }: PlansSectionProps) {
                     <h3 className="text-lg font-semibold text-gray-900">
                       Planos em preparação
                     </h3>
-                    <p className="text-gray-600">
-                      Estamos finalizando os planos. Volte em alguns instantes.
-                    </p>
+                    <a
+                      href="/auth/register"
+                      className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors text-center block"
+                    >
+                      Assinar Premium
+                    </a>
+                    <Button variant="outline" className="mt-4">
+                      <Link href="#contact">
+                        Fale conosco
+                      </Link>
+                    </Button>
                   </div>
-                  <Button variant="outline" className="mt-4">
-                    <Link href="#contact">
-                      Fale conosco
-                    </Link>
-                  </Button>
                 </div>
               </CardContent>
             </Card>

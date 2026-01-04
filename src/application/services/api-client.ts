@@ -1,4 +1,4 @@
-import { ApiResponse, ApiError } from '@/domain/types';
+import { PaginatedResponse } from '@/domain/types';
 
 /**
  * Cliente base para chamadas de API

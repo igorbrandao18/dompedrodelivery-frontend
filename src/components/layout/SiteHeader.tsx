@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
 
 interface NavItem {
@@ -53,11 +51,12 @@ export function SiteHeader() {
 
         {/* Desktop CTA */}
         <div className="hidden items-center gap-3 md:flex">
-          <Button asChild variant="primary">
-            <Link href="/auth/login">
-              Login
-            </Link>
-          </Button>
+          <a
+            href="/auth/login"
+            className="rounded-2xl bg-orange-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-orange-200 transition hover:bg-orange-700"
+          >
+            Login
+          </a>
         </div>
 
         {/* Mobile Menu Button */}
@@ -98,11 +97,12 @@ export function SiteHeader() {
               </a>
             ))}
             <div className="pt-4">
-              <Button asChild variant="primary" className="w-full">
-                <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  Login
-                </Link>
-              </Button>
+              <a
+                href="/auth/login"
+                className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors text-center block"
+              >
+                Login
+              </a>
             </div>
           </nav>
         </div>

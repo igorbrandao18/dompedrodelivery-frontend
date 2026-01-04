@@ -1,28 +1,49 @@
-import { ButtonHTMLAttributes } from "react";
-import { cn } from "@/lib/cn";
+import { ButtonHTMLAttributes, forwardRef } from "react";
+import { cn } from "@/lib/utils/cn";
 
-type ButtonVariant = "primary" | "secondary" | "ghost";
-
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "default" | "primary" | "secondary" | "ghost" | "outline";
+  size?: "default" | "sm" | "lg" | "icon";
+  asChild?: boolean;
 }
 
-const variantStyles: Record<ButtonVariant, string> = {
-  primary: "bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-200",
-  secondary: "bg-white text-gray-900 border border-gray-200 hover:border-orange-200",
-  ghost: "text-gray-700 hover:text-orange-600",
-};
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant = "default", size = "default", asChild = false, ...props }, ref) => {
+    return (
+      <button
+        className={cn(
+          // Base styles
+          "inline-flex items-center justify-center rounded-xl font-medium transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2",
+          "disabled:pointer-events-none disabled:opacity-50",
+          
+          // Variants
+          {
+            "bg-orange-600 text-white hover:bg-orange-700": variant === "primary",
+            "bg-gray-900 text-white hover:bg-gray-800": variant === "default",
+            "border border-gray-300 bg-white hover:bg-gray-50": variant === "outline",
+            "text-gray-600 hover:text-gray-900": variant === "secondary",
+            "text-gray-500 hover:text-gray-900": variant === "ghost",
+          },
+          
+          // Sizes
+          {
+            "h-10 px-4 py-2 text-sm": size === "default",
+            "h-9 rounded-md px-3 text-xs": size === "sm",
+            "h-11 px-8 text-base": size === "lg",
+            "h-10 w-10": size === "icon",
+          },
+          
+          className
+        )}
+        ref={ref}
+        {...props}
+      />
+    );
+  }
+);
 
-export function Button({ className, variant = "primary", ...props }: ButtonProps) {
-  return (
-    <button
-      className={cn(
-        "rounded-2xl px-5 py-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500",
-        variantStyles[variant],
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+Button.displayName = "Button";
+
+export { Button };
 

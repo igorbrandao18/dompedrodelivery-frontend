@@ -1,0 +1,75 @@
+---
+alwaysApply: true
+---
+
+## Dom Pedro Delivery — Regras e Melhores Práticas (Frontend)
+
+### 1. Filosofia Geral
+- **Clean Architecture adaptada ao Next.js App Router**: separar bem camadas Domain → Application → Infrastructure → Presentation.
+- **Server Components por padrão**: favor usar componentes server (`async`/`fetch`) e só tornar client componentes que realmente precisem de `useState`, interações ou browser-only APIs.
+- **UI declarativa e acessível**: usar semântica HTML, aria labels quando necessário, e manter foco navegável.
+- **Internacionalização centrada em pt-BR**: textos em português, moedas formatadas via `Intl.NumberFormat("pt-BR")`.
+
+### 2. Estrutura de Pastas
+```
+src/
+ ├─ app/                # Rotas Next (App Router)
+ │   └─ (rotas)/        # Cada página com layout próprio
+ ├─ components/         # Componentes reutilizáveis (SiteHeader, etc.)
+ │   ├─ layout/         # Estruturas compartilhadas (header/footer/nav)
+ │   └─ ui/             # Botões, inputs, badges, etc.
+ ├─ domain/             # Tipos/entidades puros do domínio
+ ├─ application/        # Serviços/use-cases (coordenação de dados)
+ ├─ infrastructure/     # Adapters HTTP, cache, etc.
+ ├─ presentation/       # Composições, hooks ou helpers de UI específicos
+ └─ lib/                # Utils genéricos (formatters, cn, etc.)
+```
+**Convenções**
+- Pastas em `kebab-case`, arquivos em `PascalCase.tsx` para componentes e `kebab-case.ts` para helpers.
+- Colocar testes (quando houver) ao lado do arquivo alvo (`Component.spec.tsx`).
+- Exports centralizados (`src/components/index.ts`) apenas quando fizer sentido para DX; caso contrário, exporte por arquivo.
+
+### 3. Comunicação com Backend
+- **Base URL via `NEXT_PUBLIC_API_URL`** (fallback local `http://localhost:3000`).
+- Serviços/fetchers ficam em `src/infrastructure`, retornando tipos do domínio.
+- Tratamento de erro resiliente (fallbacks visuais, logs no server).
+- Em fetch server-side, preferir `cache: "no-store"` enquanto o backend não oferece dados cacheáveis.
+
+### 4. Estilo e UI
+- Tailwind CSS v4 via `globals.css`. Não misturar frameworks externos sem necessidade.
+- Componentes visuais básicos (botões, cards, etc.) ficam em `src/components` com estilos utilitários.
+- Manter tokens de cores/spacing consistentes (tons de laranja para primário, cinza para texto, gradientes suaves).
+- Header/Footers e seções devem ser responsivos (stack em mobile, grid em desktop).
+
+### 5. Componentes Globais
+- **Localização**: componentes reutilizáveis ficam em `src/components`. Subpastas opcionais (`/layout`, `/ui`, `/landing`) devem seguir nomes claros.
+- **Server primeiro**: crie componentes como server components por padrão. Se precisar de estado/efeitos, adicione `"use client"` explicitamente e limite ao menor bloco possível.
+- **Contrato enxuto**: exponha apenas as props necessárias, prefira objetos para agrupamentos (`cta={{ label, href }}`) e mantenha valores default para evitar boilerplate em cada uso.
+- **Estilização**: use apenas Tailwind/utilitários declarados; evite CSS-in-JS adicional. Para variações, utilize helpers como `cn()` ou classes condicionais.
+- **Acessibilidade**: botões/link devem usar elementos semânticos corretos (`<button>`, `<a>`). Sempre garantir foco e contraste mínimo.
+- **Documentação**: quando criar um componente global novo, adicione descrição breve no PR ou no README da pasta explicando propósito e exemplos de uso.
+
+### 6. React/Next Patterns
+- **Hooks**: usar hooks apenas em componentes `use client`.
+- **Layout**: `src/app/layout.tsx` define fontes, metadados e wrappers globais.
+- **Dynamic Rendering**: caso uma página use dados live (fetch sem cache), declarar `export const dynamic = "force-dynamic"` ou `revalidate`.
+- **Error/Loading states**: criar `error.tsx`/`loading.tsx` nas rotas com fetch pesado.
+
+### 7. Qualidade e Dev Experience
+- ESLint + TypeScript obrigatórios (`npm run lint` deve passar antes de PR).
+- Scripts:
+  - `npm run dev -- --port 8000` (porta padrão para dev)
+  - `npm run build` e `npm start` para simular produção.
+- Não commitar arquivos gerados (`.next`, `node_modules`, etc.).
+- Sempre documentar mudanças visuais importantes no PR (capturas ou descrições).
+
+### 8. Deploy/Infra
+- Dockerfile já gera build estático para produção.
+- Para desenvolvimento local, rodar fora do Docker (apenas Postgres/Redis ficam em containers).
+
+### 9. Roadmap de melhorias
+- Criar camada de componentes de UI (botões, badges) mais completa.
+- Suporte a dark mode via CSS custom properties.
+- Adicionar testes de snapshot com Playwright ou Storybook para principais seções.
+
+Seguindo estas regras mantemos o frontend consistente, fácil de evoluir e alinhado à arquitetura proposta para o projeto Dom Pedro Delivery. Atualize este documento sempre que novas práticas forem adotadas.

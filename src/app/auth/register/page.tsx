@@ -55,13 +55,36 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      // TODO: Implementar chamada à API de registro
-      console.log('Dados de registro:', formData);
-      
-      // Simulação de sucesso - envio de email com senha
-      setTimeout(() => {
-        setShowSuccess(true);
-      }, 1000);
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tenantName: formData.tenantName,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => null);
+        throw new Error(errorBody?.message || `HTTP ${response.status}`);
+      }
+
+      const data = (await response.json()) as {
+        tenant?: { slug: string };
+      };
+
+      if (data?.tenant?.slug) {
+        localStorage.setItem('tenantSlug', data.tenant.slug);
+      }
+
+      setShowSuccess(true);
+      // Optional: redirect to login with message
+      // router.push('/auth/login?message=registered');
     } catch (error) {
       console.error('Erro no registro:', error);
       setErrors({ ...errors, email: 'Erro ao criar conta. Tente novamente.' });

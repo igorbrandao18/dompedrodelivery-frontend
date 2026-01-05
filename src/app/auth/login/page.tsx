@@ -60,13 +60,33 @@ export default function LoginPage() {
     setMessage('');
 
     try {
-      // TODO: Implementar chamada à API de login
-      console.log('Dados de login:', formData);
-      
-      // Simulação de sucesso
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 1000);
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const tenantSlug = localStorage.getItem('tenantSlug');
+      if (!tenantSlug) {
+        throw new Error('Tenant slug não encontrado. Faça o registro novamente.');
+      }
+
+      const response = await fetch(`${baseUrl}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-tenant-slug': tenantSlug,
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => null);
+        throw new Error(errorBody?.message || `HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      // TODO: salvar token no contexto de autenticação
+      console.log('Login OK:', data);
+      router.push('/dashboard');
     } catch (error) {
       console.error('Erro no login:', error);
       setErrors({ ...errors, email: 'Email ou senha incorretos. Tente novamente.' });

@@ -16,11 +16,6 @@ export function useLogin() {
       setIsLoading(true);
       setError(null);
       try {
-        const tenantSlug = localStorage.getItem('tenantSlug');
-        if (!tenantSlug) {
-          throw new Error(t('auth.tenant_slug_missing'));
-        }
-
         await authService.login({ email: input.email, password: input.password });
         router.push('/dashboard');
       } catch (err) {

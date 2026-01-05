@@ -37,6 +37,7 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
+  tenantSlug?: string;
 }
 
 export interface AuthState {

@@ -94,7 +94,14 @@ export function useDashboard() {
 
   const fetchOrders = useCallback(async () => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const tenantSlug = localStorage.getItem('tenantSlug');
+    const getCookie = (name: string) => {
+      if (typeof document === 'undefined') return null;
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift() ?? null;
+      return null;
+    };
+    const tenantSlug = getCookie('tenantSlug');
 
     if (!tenantSlug) {
       setIsLoading(false);
@@ -161,7 +168,14 @@ export function useDashboard() {
 
   const fetchTenant = useCallback(async () => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const tenantSlug = localStorage.getItem('tenantSlug');
+    const getCookie = (name: string) => {
+      if (typeof document === 'undefined') return null;
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift() ?? null;
+      return null;
+    };
+    const tenantSlug = getCookie('tenantSlug');
 
     if (!tenantSlug) {
       setTenantLoading(false);

@@ -12,6 +12,27 @@ import { API_ENDPOINTS } from '@/lib/constants';
  */
 export class AuthService {
   /**
+   * Define um cookie
+   */
+  private static setCookie(name: string, value: string, days: number = 7) {
+    if (typeof window === 'undefined') return;
+    
+    const expires = new Date();
+    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+    
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+  }
+
+  /**
+   * Remove um cookie
+   */
+  private static removeCookie(name: string) {
+    if (typeof window === 'undefined') return;
+    
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:01 UTC;path=/;SameSite=Lax`;
+  }
+
+  /**
    * Realiza login do usuário
    */
   static async login(credentials: LoginCredentials): Promise<AuthResponse> {
@@ -24,11 +45,8 @@ export class AuthService {
     // Mantemos apenas dados não sensíveis necessários para UX (ex: tenantSlug/user).
     if (typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(response.user));
-      if ((response as unknown as { tenantSlug?: string }).tenantSlug) {
-        localStorage.setItem(
-          'tenantSlug',
-          (response as unknown as { tenantSlug: string }).tenantSlug,
-        );
+      if (response.tenantSlug) {
+        this.setCookie('tenantSlug', response.tenantSlug, 7);
       }
     }
     
@@ -45,10 +63,10 @@ export class AuthService {
       // Continua com logout mesmo se API falhar
       console.error('Logout API error:', error);
     } finally {
-      // Limpa dados do localStorage
+      // Limpa dados do localStorage e cookies
       if (typeof window !== 'undefined') {
         localStorage.removeItem('user');
-        localStorage.removeItem('tenantSlug');
+        this.removeCookie('tenantSlug');
       }
     }
   }
@@ -65,11 +83,8 @@ export class AuthService {
     // Com cookies HttpOnly, o token não deve ser persistido no localStorage.
     if (typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(response.user));
-      if ((response as unknown as { tenantSlug?: string }).tenantSlug) {
-        localStorage.setItem(
-          'tenantSlug',
-          (response as unknown as { tenantSlug: string }).tenantSlug,
-        );
+      if (response.tenantSlug) {
+        this.setCookie('tenantSlug', response.tenantSlug, 7);
       }
     }
 
@@ -118,11 +133,8 @@ export class AuthService {
 
       // Atualiza apenas user/tenantSlug
       localStorage.setItem('user', JSON.stringify(response.user));
-      if ((response as unknown as { tenantSlug?: string }).tenantSlug) {
-        localStorage.setItem(
-          'tenantSlug',
-          (response as unknown as { tenantSlug: string }).tenantSlug,
-        );
+      if (response.tenantSlug) {
+        this.setCookie('tenantSlug', response.tenantSlug, 7);
       }
       
       return response;

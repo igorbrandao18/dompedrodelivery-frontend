@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
+import { DashboardLayout } from '@/components/ui/DashboardLayout';
 import { useDashboard } from '@/application/hooks/useDashboard';
 
 type OrderStatus = 'ANALYSIS' | 'PRODUCTION' | 'READY';
@@ -51,8 +52,7 @@ export default function DashboardPage() {
   const [search, setSearch] = useState('');
   const [orderNumber, setOrderNumber] = useState('');
 
-  const { orders, isLoading, loadError, tenant, tenantLoading, logout } =
-    useDashboard();
+  const { orders, isLoading, loadError, tenant, tenantLoading } = useDashboard();
 
   const filteredOrders = useMemo(() => {
     const s = search.trim().toLowerCase();
@@ -76,27 +76,18 @@ export default function DashboardPage() {
   }, [filteredOrders]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Meus Pedidos</h1>
-          {tenantLoading ? (
-            <div className="text-sm text-gray-500">Carregando...</div>
-          ) : tenant ? (
-            <div className="text-sm text-gray-600">
-              {tenant.name} · Plano: <span className="font-medium">{tenant.plan}</span>
-            </div>
-          ) : null}
-        </div>
-
-        <button
-          onClick={logout}
-          className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-        >
-          Sair
-        </button>
-      </div>
-
+    <DashboardLayout 
+      title="Meus Pedidos"
+      actions={
+        tenantLoading ? (
+          <div className="text-sm text-gray-500">Carregando...</div>
+        ) : tenant ? (
+          <div className="text-sm text-gray-600">
+            {tenant.name} · Plano: <span className="font-medium">{tenant.plan}</span>
+          </div>
+        ) : null
+      }
+    >
       {loadError && (
         <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {loadError}
@@ -211,6 +202,6 @@ export default function DashboardPage() {
           );
         })}
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

@@ -11,7 +11,7 @@ import { useLoginForm } from '@/application/hooks/useLoginForm';
 import { t } from '@/i18n';
 
 export default function LoginPage() {
-  const { formData, errors, message, isLoading, onChange, onSubmit } = useLoginForm();
+  const { formData, isLoading, error, handleInputChange, handleSubmit } = useLoginForm();
 
   return (
     <SplitLayout
@@ -39,9 +39,9 @@ export default function LoginPage() {
           logoAlt={t('auth.login.form.logo_alt')}
           title={t('auth.login.form.title')}
           subtitle={t('auth.login.form.subtitle')}
-          message={message}
+          message={error || undefined}
         >
-          <form onSubmit={onSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
                 {t('auth.login.form.email_label')}
@@ -51,8 +51,8 @@ export default function LoginPage() {
                   type="email"
                   placeholder={t('auth.login.form.email_placeholder')}
                   value={formData.email}
-                  onChange={onChange('email')}
-                  error={errors.email}
+                  onChange={(e) => handleInputChange('email')(e.target.value)}
+                  error={error ? 'Email inválido' : undefined}
                   className="pl-10"
                   required
                 />
@@ -71,8 +71,8 @@ export default function LoginPage() {
               <PasswordInput
                 placeholder={t('auth.login.form.password_placeholder')}
                 value={formData.password}
-                onChange={onChange('password')}
-                error={errors.password}
+                onChange={(e) => handleInputChange('password')(e.target.value)}
+                error={error ? 'Senha inválida' : undefined}
                 className="pl-10 pr-10"
                 required
               />

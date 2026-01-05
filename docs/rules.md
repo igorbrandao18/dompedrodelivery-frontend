@@ -268,6 +268,51 @@ export function UsersList() {
 - **Server state**: React Query/TanStack Query
 - **Form state**: React Hook Form + Zod
 
+### Regra: UI sem Regra de Negócio
+- **Componentes/Páginas (UI)**: apenas renderização + estado de UI (inputs, abas, modais, filtros simples).
+- **Regras de negócio / data fetching / transformação**: devem ficar em `application/hooks/` e/ou `application/services/`.
+- **Proibido**: `fetch` + mapeamentos complexos + validações de negócio diretamente dentro de `app/*/page.tsx`.
+
+### Regra: Internacionalização (i18n) e Anti-Hardcode (Frontend + Backend)
+
+#### Não pode ficar hardcoded
+- **Strings exibidas ao usuário** (títulos, botões, placeholders, mensagens de erro/sucesso)
+- **Labels de enums** (status de pedido, método de pagamento, plano, tipo de operação)
+- **Regras de negócio em UI** (ex.: mapeamento de status, texto de plano, mensagens específicas)
+- **URLs/Origins/Ports** (dev/prod) fora de env/config
+
+#### Onde cada coisa deve morar
+- **Frontend**
+  - Textos/labels: arquivos de tradução (ex.: `src/i18n/pt-BR.ts`, `src/i18n/en-US.ts`)
+  - Hooks/services: recebem `errorCode` do backend e transformam em texto via i18n
+  - `localStorage`: somente dados não sensíveis e necessários para UX (ex.: `tenantSlug`, `user`)
+
+- **Backend**
+  - Retornos de erro devem ter **código estável** (ex.: `TENANT_NOT_FOUND`, `INVALID_CREDENTIALS`) e parâmetros.
+  - Mensagens textuais podem existir para debug, mas o cliente deve se guiar por `errorCode`.
+  - Regras de negócio, enums e contratos oficiais devem estar no backend.
+
+#### Padrão recomendado de erro (contrato)
+Backend responde algo do tipo:
+```json
+{
+  "errorCode": "TENANT_NOT_FOUND",
+  "message": "Tenant not found",
+  "params": { "tenantSlug": "abc" }
+}
+```
+Frontend traduz:
+```ts
+// i18n.pt-BR.ts
+TENANT_NOT_FOUND: (p) => `Estabelecimento não encontrado (${p.tenantSlug})`
+```
+
+#### Checklist rápido (anti-hardcode)
+- Se a string aparece na tela: **vai para i18n**
+- Se é regra/enum/contrato: **vai para backend**
+- Se é URL/secret/port: **vai para env/config**
+- Se é texto de erro: **backend manda errorCode**, frontend traduz
+
 ---
 
 ## ⚡ Performance

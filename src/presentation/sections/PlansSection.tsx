@@ -3,7 +3,7 @@
 import { SubscriptionPlan } from "@/domain/types";
 import { PlanCard } from "./PlanCard";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 
 interface PlansSectionProps {

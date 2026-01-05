@@ -1,6 +1,25 @@
 /**
  * Cliente base para chamadas de API
  */
+export class ApiClientError extends Error {
+  status: number;
+  errorCode?: string;
+  params?: Record<string, unknown>;
+
+  constructor(input: {
+    message: string;
+    status: number;
+    errorCode?: string;
+    params?: Record<string, unknown>;
+  }) {
+    super(input.message);
+    this.name = 'ApiClientError';
+    this.status = input.status;
+    this.errorCode = input.errorCode;
+    this.params = input.params;
+  }
+}
+
 class ApiClient {
   private baseURL: string;
   private defaultHeaders: Record<string, string>;
@@ -13,13 +32,13 @@ class ApiClient {
   }
 
   /**
-   * Obtém os headers de autorização
+   * Obtém os headers do tenant (multi-tenant)
    */
-  private getAuthHeaders(): Record<string, string> {
+  private getTenantHeaders(): Record<string, string> {
     if (typeof window === 'undefined') return {};
-    
-    const token = localStorage.getItem('accessToken');
-    return token ? { Authorization: `Bearer ${token}` } : {};
+
+    const tenantSlug = localStorage.getItem('tenantSlug');
+    return tenantSlug ? { 'x-tenant-slug': tenantSlug } : {};
   }
 
   /**
@@ -32,13 +51,14 @@ class ApiClient {
     const url = `${this.baseURL}${endpoint}`;
     const headers = {
       ...this.defaultHeaders,
-      ...this.getAuthHeaders(),
+      ...this.getTenantHeaders(),
       ...options.headers,
     };
 
     try {
       const response = await fetch(url, {
         ...options,
+        credentials: 'include',
         headers,
       });
 
@@ -47,14 +67,28 @@ class ApiClient {
         return null as T;
       }
 
-      const data = await response.json();
+      const data = (await response.json().catch(() => null)) as
+        | null
+        | {
+            message?: string;
+            errorCode?: string;
+            params?: Record<string, unknown>;
+          };
 
       if (!response.ok) {
-        throw new Error(data.message || `HTTP ${response.status}`);
+        throw new ApiClientError({
+          message: data?.message || `HTTP ${response.status}`,
+          status: response.status,
+          errorCode: data?.errorCode,
+          params: data?.params,
+        });
       }
 
-      return data;
+      return data as T;
     } catch (error) {
+      if (error instanceof ApiClientError) {
+        throw error;
+      }
       if (error instanceof Error) {
         throw new Error(`API Error: ${error.message}`);
       }

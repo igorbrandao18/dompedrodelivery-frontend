@@ -1,0 +1,42 @@
+export const enUS = {
+  common: {
+    loading: 'Loading...',
+    logout: 'Logout',
+    search: 'Search',
+  },
+  auth: {
+    login_title: 'Welcome back',
+    email_required: 'Email is required',
+    email_invalid: 'Invalid email',
+    password_required: 'Password is required',
+    login_invalid: 'Invalid email or password. Please try again.',
+    tenant_slug_missing: 'Tenant slug not found. Please register again.',
+    register_success: 'Account created successfully! Please login to continue.',
+  },
+  dashboard: {
+    title: 'My Orders',
+    order_number: 'Order #',
+    search_customer: 'Search by customer',
+    empty_orders: 'No orders right now.',
+    empty_orders_hint: 'Receive orders and track ready-to-deliver ones here.',
+    status: {
+      ANALYSIS: { title: 'Review', actionLabel: 'Accept order' },
+      PRODUCTION: { title: 'In production', actionLabel: 'Advance order' },
+      READY: { title: 'Ready', actionLabel: 'Assign courier' },
+    },
+  },
+  error: {
+    TENANT_SLUG_REQUIRED: 'x-tenant-slug header is required.',
+    TENANT_NOT_FOUND: 'Tenant not found.',
+    INVALID_CREDENTIALS: 'Invalid credentials.',
+    TOKEN_TENANT_MISMATCH: 'Invalid session for this tenant.',
+    TENANT_ID_MISSING: 'Tenant context missing.',
+    USER_MISSING: 'User context missing.',
+    QUERY_TOO_SHORT: 'Type at least 2 characters to search.',
+    BAD_REQUEST: 'Bad request.',
+    UNAUTHORIZED: 'Unauthorized.',
+    FORBIDDEN: 'Forbidden.',
+    NOT_FOUND: 'Not found.',
+    INTERNAL_SERVER_ERROR: 'Internal server error.',
+  },
+} as const;

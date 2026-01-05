@@ -20,11 +20,16 @@ export class AuthService {
       credentials
     );
     
-    // Armazena tokens no localStorage
+    // Com cookies HttpOnly, o token não deve ser persistido no localStorage.
+    // Mantemos apenas dados não sensíveis necessários para UX (ex: tenantSlug/user).
     if (typeof window !== 'undefined') {
-      localStorage.setItem('accessToken', response.accessToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
       localStorage.setItem('user', JSON.stringify(response.user));
+      if ((response as unknown as { tenantSlug?: string }).tenantSlug) {
+        localStorage.setItem(
+          'tenantSlug',
+          (response as unknown as { tenantSlug: string }).tenantSlug,
+        );
+      }
     }
     
     return response;
@@ -40,11 +45,10 @@ export class AuthService {
       // Continua com logout mesmo se API falhar
       console.error('Logout API error:', error);
     } finally {
-      // Limpa tokens do localStorage
+      // Limpa dados do localStorage
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
+        localStorage.removeItem('tenantSlug');
       }
     }
   }
@@ -57,14 +61,18 @@ export class AuthService {
       API_ENDPOINTS.REGISTER,
       data
     );
-    
-    // Armazena tokens no localStorage
+
+    // Com cookies HttpOnly, o token não deve ser persistido no localStorage.
     if (typeof window !== 'undefined') {
-      localStorage.setItem('accessToken', response.accessToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
       localStorage.setItem('user', JSON.stringify(response.user));
+      if ((response as unknown as { tenantSlug?: string }).tenantSlug) {
+        localStorage.setItem(
+          'tenantSlug',
+          (response as unknown as { tenantSlug: string }).tenantSlug,
+        );
+      }
     }
-    
+
     return response;
   }
 
@@ -88,32 +96,34 @@ export class AuthService {
    */
   static isAuthenticated(): boolean {
     if (typeof window === 'undefined') return false;
-    
-    const token = localStorage.getItem('accessToken');
+
     const user = this.getCurrentUser();
-    
-    return !!(token && user);
+
+    // Com cookies HttpOnly, não conseguimos checar o token do lado do cliente.
+    // Então consideramos autenticado se houver user (e o backend validará o cookie).
+    return !!user;
   }
 
   /**
    * Atualiza tokens usando refresh token
    */
   static async refreshTokens(): Promise<AuthResponse | null> {
+    // Refresh token via cookie HttpOnly (se existir no backend).
     if (typeof window === 'undefined') return null;
-    
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (!refreshToken) return null;
-    
+
     try {
       const response = await apiClient.post<AuthResponse>(
         API_ENDPOINTS.REFRESH,
-        { refreshToken }
       );
-      
-      // Atualiza tokens
-      localStorage.setItem('accessToken', response.accessToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
+
+      // Atualiza apenas user/tenantSlug
       localStorage.setItem('user', JSON.stringify(response.user));
+      if ((response as unknown as { tenantSlug?: string }).tenantSlug) {
+        localStorage.setItem(
+          'tenantSlug',
+          (response as unknown as { tenantSlug: string }).tenantSlug,
+        );
+      }
       
       return response;
     } catch (error) {
@@ -129,7 +139,7 @@ export class AuthService {
    */
   static getAccessToken(): string | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('accessToken');
+    return null;
   }
 }
 

@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
+import { useDashboard } from '@/application/hooks/useDashboard';
 
 type OrderStatus = 'ANALYSIS' | 'PRODUCTION' | 'READY';
 
@@ -50,31 +51,8 @@ export default function DashboardPage() {
   const [search, setSearch] = useState('');
   const [orderNumber, setOrderNumber] = useState('');
 
-  const orders = useMemo<Order[]>(
-    () => [
-      {
-        id: '#880',
-        createdAt: '15:15',
-        customerName: 'Ana',
-        customerPhone: '(53) 98888-8888',
-        address: 'Delivery: Av. Pinheiro Machado',
-        total: 'R$ 35,00',
-        payment: 'Dinheiro - Troco',
-        status: 'ANALYSIS',
-      },
-      {
-        id: '#879',
-        createdAt: '15:12',
-        customerName: 'Ailton',
-        customerPhone: '(53) 99999-9999',
-        address: 'Delivery: Avenida Duque de Caxias',
-        total: 'R$ 27,00',
-        payment: 'Cartão',
-        status: 'PRODUCTION',
-      },
-    ],
-    [],
-  );
+  const { orders, isLoading, loadError, tenant, tenantLoading, logout } =
+    useDashboard();
 
   const filteredOrders = useMemo(() => {
     const s = search.trim().toLowerCase();
@@ -99,9 +77,33 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3">
-        <h1 className="text-xl font-bold text-gray-900">Meus Pedidos</h1>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900">Meus Pedidos</h1>
+          {tenantLoading ? (
+            <div className="text-sm text-gray-500">Carregando...</div>
+          ) : tenant ? (
+            <div className="text-sm text-gray-600">
+              {tenant.name} · Plano: <span className="font-medium">{tenant.plan}</span>
+            </div>
+          ) : null}
+        </div>
 
+        <button
+          onClick={logout}
+          className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+        >
+          Sair
+        </button>
+      </div>
+
+      {loadError && (
+        <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {loadError}
+        </div>
+      )}
+
+      <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-gray-700">Nº Pedido</label>
@@ -146,7 +148,11 @@ export default function DashboardPage() {
               </div>
 
               <div className="mt-3 space-y-3">
-                {items.length === 0 ? (
+                {isLoading ? (
+                  <div className="rounded-md bg-white/70 p-4 text-center text-sm text-gray-700">
+                    Carregando...
+                  </div>
+                ) : items.length === 0 ? (
                   <div className="rounded-md bg-white/70 p-4 text-center text-sm text-gray-700">
                     Nenhum pedido no momento.
                     <div className="mt-1 text-xs text-gray-600">
